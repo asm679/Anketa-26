@@ -1,0 +1,14 @@
+name = "anketa26-api"
+main = "src/index.js"
+compatibility_date = "2024-11-01"
+
+# Секреты (НЕ хранятся здесь, задаются командой `wrangler secret put <ИМЯ>`):
+#   GH_DATA_TOKEN          — fine-grained GitHub PAT, доступ только к репозиторию Anketa-26-data,
+#                            права: Contents: Read and write
+#   JWT_SECRET             — произвольная длинная случайная строка для подписи токенов админ-сессии
+#   ADMIN_BOOTSTRAP_PASSWORD — пароль для первого входа в админ-панель (логин "admin")
+
+[vars]
+DATA_REPO_OWNER = "asm679"
+DATA_REPO_NAME = "Anketa-26-data"
+ALLOWED_ORIGIN = "https://asm679.github.io"

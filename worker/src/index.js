@@ -24,6 +24,9 @@ function isAllowedOrigin(origin, env) {
   if (!origin) return false;
   if (origin === env.ALLOWED_ORIGIN) return true;
   if (origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) return true;
+  // Временно: разрешает резервный превью-домен, пока GitHub Pages не восстановлен.
+  // TODO: убрать после перехода на постоянный GitHub Pages.
+  if (origin === 'https://sites.pplx.app' || origin === 'https://www.perplexity.ai') return true;
   return false;
 }
 

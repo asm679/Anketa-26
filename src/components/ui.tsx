@@ -55,6 +55,16 @@ const SCALE_LABELS = [
   'Понимаю суть, не применял(а)',
   'Уверенно ориентируюсь',
   'Применяю на практике / могу объяснить другим',
+  'Могу разрабатывать собственные решения / вести экспертную работу в этой области',
+];
+
+const SCALE_LABELS_SHORT = [
+  'Не знаком(а)',
+  'Слышал(а)',
+  'Понимаю суть',
+  'Ориентируюсь',
+  'Применяю на практике',
+  'Разрабатываю',
 ];
 
 export function ScaleSelector({
@@ -67,8 +77,8 @@ export function ScaleSelector({
   name: string;
 }) {
   return (
-    <div className="flex flex-wrap gap-1.5 sm:gap-2" role="radiogroup" aria-label="Оценка от 0 до 4">
-      {[0, 1, 2, 3, 4].map((n) => (
+    <div className="flex flex-wrap gap-1 sm:gap-2" role="radiogroup" aria-label="Оценка от 0 до 5">
+      {[0, 1, 2, 3, 4, 5].map((n) => (
         <button
           key={n}
           type="button"
@@ -77,7 +87,7 @@ export function ScaleSelector({
           title={SCALE_LABELS[n]}
           onClick={() => onChange(n)}
           className={clsx(
-            'flex flex-col items-center justify-center rounded-lg border w-14 h-14 sm:w-16 sm:h-16 text-sm font-medium transition-all shrink-0',
+            'flex flex-col items-center justify-center rounded-lg border w-11 h-11 sm:w-16 sm:h-16 text-sm font-medium transition-all shrink-0',
             value === n
               ? 'bg-navy text-white border-navy shadow-card'
               : 'bg-white text-ink border-border hover:border-navy-med hover:bg-navy-50'
@@ -93,15 +103,20 @@ export function ScaleSelector({
 
 export function ScaleLegend() {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 text-xs text-muted mb-4">
-      {SCALE_LABELS.map((label, i) => (
-        <div key={i} className="flex items-center gap-1.5">
-          <span className="inline-flex items-center justify-center w-5 h-5 rounded bg-navy-50 text-navy-dark font-semibold shrink-0">
-            {i}
-          </span>
-          <span>{label}</span>
-        </div>
-      ))}
+    <div className="sticky top-0 z-10 -mx-5 sm:-mx-6 px-5 sm:px-6 py-3 mb-4 bg-white border-b border-border-light shadow-sm">
+      <p className="text-xs font-semibold text-navy-dark mb-2">
+        Что означают номера ответов ниже
+      </p>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-x-3 gap-y-1.5 text-xs text-muted">
+        {SCALE_LABELS.map((label, i) => (
+          <div key={i} className="flex items-start gap-1.5" title={label}>
+            <span className="inline-flex items-center justify-center w-5 h-5 rounded bg-navy-50 text-navy-dark font-semibold shrink-0">
+              {i}
+            </span>
+            <span className="leading-tight">{SCALE_LABELS_SHORT[i]}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

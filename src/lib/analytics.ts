@@ -8,7 +8,7 @@ export interface ItemStat {
   blockCode: string;
   average: number;
   count: number;
-  distribution: number[]; // индекс = оценка 0..4, значение = количество ответов
+  distribution: number[]; // индекс = оценка 0..5, значение = количество ответов
 }
 
 export interface BlockStat {
@@ -26,10 +26,10 @@ export function computeBlockStats(
   return taxonomy.blocks.map((block: TaxonomyBlock) => {
     const items: ItemStat[] = block.items.map((item) => {
       const values: number[] = [];
-      const distribution = [0, 0, 0, 0, 0];
+      const distribution = [0, 0, 0, 0, 0, 0];
       for (const r of responses) {
         const v = r.scores?.[item.id];
-        if (typeof v === 'number' && v >= 0 && v <= 4) {
+        if (typeof v === 'number' && v >= 0 && v <= 5) {
           values.push(v);
           distribution[v] += 1;
         }

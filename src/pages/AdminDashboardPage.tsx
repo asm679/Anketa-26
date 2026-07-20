@@ -86,11 +86,11 @@ export default function AdminDashboardPage() {
         </Card>
       ) : !selectedBlock ? (
         <Card>
-          <h2 className="font-medium text-ink mb-4">Средний балл по блокам (0–4)</h2>
+          <h2 className="font-medium text-ink mb-4">Средний балл по блокам (0–5)</h2>
           <ResponsiveContainer width="100%" height={Math.max(320, blockStats.length * 42)}>
             <BarChart data={blockStats} layout="vertical" margin={{ left: 10, right: 20 }}>
               <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-              <XAxis type="number" domain={[0, 4]} tick={{ fontSize: 12 }} />
+              <XAxis type="number" domain={[0, 5]} tick={{ fontSize: 12 }} />
               <YAxis
                 type="category"
                 dataKey="code"
@@ -143,7 +143,7 @@ export default function AdminDashboardPage() {
           <ResponsiveContainer width="100%" height={Math.max(320, selectedBlock.items.length * 36)}>
             <BarChart data={selectedBlock.items} layout="vertical" margin={{ left: 10, right: 20 }}>
               <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-              <XAxis type="number" domain={[0, 4]} tick={{ fontSize: 12 }} />
+              <XAxis type="number" domain={[0, 5]} tick={{ fontSize: 12 }} />
               <YAxis type="category" dataKey="id" width={50} tick={{ fontSize: 12 }} />
               <Tooltip
                 formatter={((v: number) => v.toFixed(2)) as unknown as (value: unknown) => string}
@@ -189,7 +189,7 @@ export default function AdminDashboardPage() {
           <h2 className="font-medium text-ink mb-1">{selectedItem.short}</h2>
           <p className="text-sm text-muted mb-4">{selectedItem.desc}</p>
 
-          <h3 className="text-sm font-medium text-ink mb-2">Распределение оценок (0–4)</h3>
+          <h3 className="text-sm font-medium text-ink mb-2">Распределение оценок (0–5)</h3>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart
               data={selectedItem.distribution.map((count, score) => ({ score: String(score), count }))}

@@ -39,9 +39,9 @@ const ALL_ITEM_IDS = taxonomy.blocks.flatMap((b) => b.items.map((i) => i.id));
 const MOTIVATION_COLORS = ['#A12C2C', '#9C6A1E', '#5B5F66', '#2E4E7A', '#3E7A3E'];
 
 function scoreColor(avg: number): string {
-  if (avg < 1.5) return '#A12C2C';
-  if (avg < 2.5) return '#9C6A1E';
-  if (avg < 3.3) return '#2E4E7A';
+  if (avg < 2) return '#A12C2C';
+  if (avg < 3) return '#9C6A1E';
+  if (avg < 4) return '#2E4E7A';
   return '#3E7A3E';
 }
 
@@ -252,7 +252,7 @@ export default function AdminReportPage() {
                   <RadarChart data={ticketProfile}>
                     <PolarGrid />
                     <PolarAngleAxis dataKey="code" tick={{ fontSize: 12 }} />
-                    <PolarRadiusAxis domain={[0, 4]} tick={{ fontSize: 10 }} />
+                    <PolarRadiusAxis domain={[0, 5]} tick={{ fontSize: 10 }} />
                     <Radar name={selectedResponse.ticket} dataKey="average" stroke="#12305C" fill="#12305C" fillOpacity={0.35} />
                     <Tooltip formatter={((v: number) => v.toFixed(2)) as unknown as (value: unknown) => string} />
                   </RadarChart>
@@ -294,16 +294,16 @@ function buildGroupSummary(
   const strongest = sorted[0];
   const weakest = sorted[sorted.length - 1];
   const level =
-    avgAll >= 3.3
+    avgAll >= 4
       ? 'высокий'
-      : avgAll >= 2.5
+      : avgAll >= 3
         ? 'выше среднего'
-        : avgAll >= 1.5
+        : avgAll >= 2
           ? 'средний'
           : 'начальный';
 
   return [
-    `По результатам обработки ${responses.length} анкет средний уровень самооценки знаний группы по всем блокам составляет ${avgAll.toFixed(2)} из 4, что соответствует ${level} уровню подготовки поступающих.`,
+    `По результатам обработки ${responses.length} анкет средний уровень самооценки знаний группы по всем блокам составляет ${avgAll.toFixed(2)} из 5, что соответствует ${level} уровню подготовки поступающих.`,
     `Наиболее уверенно группа оценивает раздел «${strongest.title}» (блок ${strongest.code}, средний балл ${strongest.average.toFixed(2)}) — эту область можно рассматривать как базу для углублённого изучения на первом курсе.`,
     `Наименее уверенно группа чувствует себя в разделе «${weakest.title}» (блок ${weakest.code}, средний балл ${weakest.average.toFixed(2)}) — рекомендуется уделить этому блоку повышенное внимание во вводных занятиях и организовать дополнительные консультации.`,
     `Рекомендуется сформировать вводный модуль повторения на основе списка рекомендованных тем (см. раздел выше), распределив материал по дисциплинам учебного плана (ВС, ИС, ТРПО, СПИ) пропорционально выявленным пробелам.`,
@@ -324,7 +324,7 @@ function buildTicketSummary(
 
   return [
     `Билет ${response.ticket} (${response.fio}).`,
-    `Средний балл самооценки по всем блокам: ${avg.toFixed(2)} из 4.`,
+    `Средний балл самооценки по всем блокам: ${avg.toFixed(2)} из 5.`,
     `Наиболее сильная область: «${strongest.title}» (блок ${strongest.code}, ${strongest.average.toFixed(2)}).`,
     `Наиболее слабая область: «${weakest.title}» (блок ${weakest.code}, ${weakest.average.toFixed(2)}).`,
     motivationText,

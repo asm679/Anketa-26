@@ -64,7 +64,7 @@ function validateSubmission(body) {
   const scoreValues = Object.values(body.scores);
   if (scoreValues.length < 70) return 'Анкета заполнена не полностью';
   for (const v of scoreValues) {
-    if (!Number.isInteger(v) || v < 0 || v > 4) return 'Некорректное значение оценки (допустимо 0-4)';
+    if (!Number.isInteger(v) || v < 0 || v > 5) return 'Некорректное значение оценки (допустимо 0-5)';
   }
   if (body.motivation !== undefined && (!Number.isInteger(body.motivation) || body.motivation < 1 || body.motivation > 5)) {
     return 'Некорректное значение мотивации (допустимо 1-5)';

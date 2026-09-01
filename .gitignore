@@ -16,6 +16,10 @@ dist-ssr
 .env
 .dev.vars
 
+# Секреты бэкенда PHP — не должны попадать в публичный репозиторий.
+# Реальный файл живёт локально и на хостинге; в git — только config.example.php.
+backend-php/api/lib/config.php
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

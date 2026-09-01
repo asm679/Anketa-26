@@ -48,11 +48,11 @@ export default function AdminDashboardPage() {
 
   const blockStats = useMemo(() => computeBlockStats(taxonomy, responses), [responses]);
 
-  const ticketsForItem = useMemo(() => {
+  const responsesForItem = useMemo(() => {
     if (!selectedItem) return [];
     return responses
       .filter((r) => typeof r.scores?.[selectedItem.id] === 'number')
-      .map((r) => ({ ticket: r.ticket, fio: r.fio, score: r.scores[selectedItem.id] }))
+      .map((r) => ({ telegram: r.telegram, fio: r.fio, score: r.scores[selectedItem.id] }))
       .sort((a, b) => a.score - b.score);
   }, [selectedItem, responses]);
 
@@ -77,7 +77,7 @@ export default function AdminDashboardPage() {
       <h1 className="font-display text-2xl text-navy-dark mb-1">Дашборд по анкетированию</h1>
       <p className="text-sm text-muted mb-6">
         Всего заполненных анкет: <strong>{responses.length}</strong>. Нажмите на блок для детализации по
-        пунктам, затем на пункт — для распределения оценок и списка билетов.
+        пунктам, затем на пункт — для распределения оценок и списка участников.
       </p>
 
       {responses.length === 0 ? (
@@ -202,20 +202,20 @@ export default function AdminDashboardPage() {
             </BarChart>
           </ResponsiveContainer>
 
-          <h3 className="text-sm font-medium text-ink mt-6 mb-2">Список билетов ({ticketsForItem.length})</h3>
+          <h3 className="text-sm font-medium text-ink mt-6 mb-2">Список участников ({responsesForItem.length})</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-faint border-b border-border-light">
-                  <th className="py-2 pr-4">Билет</th>
+                  <th className="py-2 pr-4">Telegram</th>
                   <th className="py-2 pr-4">ФИО</th>
                   <th className="py-2 pr-4">Оценка</th>
                 </tr>
               </thead>
               <tbody>
-                {ticketsForItem.map((t) => (
-                  <tr key={t.ticket} className="border-b border-border-light/60">
-                    <td className="py-2 pr-4 font-medium">{t.ticket}</td>
+                {responsesForItem.map((t) => (
+                  <tr key={t.telegram} className="border-b border-border-light/60">
+                    <td className="py-2 pr-4 font-medium">{t.telegram}</td>
                     <td className="py-2 pr-4">{t.fio}</td>
                     <td className="py-2 pr-4" style={{ color: scoreColor(t.score) }}>
                       {t.score}

@@ -1,5 +1,6 @@
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './lib/AuthContext';
+import { UiChromeProvider } from './lib/UiChrome';
 import Layout from './components/Layout';
 import RequireAuth from './components/RequireAuth';
 import SurveyPage from './pages/SurveyPage';
@@ -10,6 +11,7 @@ import AdminReportPage from './pages/AdminReportPage';
 
 function App() {
   return (
+    <UiChromeProvider>
     <AuthProvider>
       <HashRouter>
         <Layout>
@@ -45,6 +47,7 @@ function App() {
         </Layout>
       </HashRouter>
     </AuthProvider>
+    </UiChromeProvider>
   );
 }
 

@@ -31,7 +31,7 @@ function csvEscape(value: unknown): string {
 
 export function exportResponsesCsv(responses: SurveyResponse[], scoreIds: string[]) {
   const headers = [
-    'ticket',
+    'telegram',
     'fio',
     'direction',
     'profile',
@@ -43,7 +43,7 @@ export function exportResponsesCsv(responses: SurveyResponse[], scoreIds: string
   const lines = [headers.join(';')];
   for (const r of responses) {
     const row = [
-      r.ticket,
+      r.telegram,
       r.fio,
       r.direction,
       r.profile,

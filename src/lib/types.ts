@@ -56,7 +56,7 @@ export const PRACTICE: { id: string; label: string }[] = [
 ];
 
 export interface SurveyResponse {
-  ticket: string;
+  telegram: string;
   slug: string;
   fio: string;
   direction: string;
@@ -89,6 +89,16 @@ export interface AdminUser {
   updatedAt: string;
 }
 
+// Приводит введённое имя пользователя Telegram к чистому виду "nick_name":
+// убирает ведущий(-ие) "@", пробелы по краям и ссылочные префиксы вида t.me/.
+export function normalizeTelegram(input: string): string {
+  let v = (input || '').trim();
+  v = v.replace(/^https?:\/\/(t(elegram)?\.me|telegram\.org)\//i, '');
+  v = v.replace(/^@+/, '');
+  v = v.trim();
+  return v;
+}
+
 export function slugifyTicket(ticket: string): string {
   return ticket
     .trim()
@@ -97,4 +107,8 @@ export function slugifyTicket(ticket: string): string {
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '')
     .slice(0, 60) || 'unknown';
+}
+
+export function slugifyTelegram(telegram: string): string {
+  return slugifyTicket(normalizeTelegram(telegram));
 }

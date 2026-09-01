@@ -59,7 +59,7 @@ export function computeBlockStats(
   });
 }
 
-export function computeTicketBlockProfile(
+export function computeResponseBlockProfile(
   taxonomy: Taxonomy,
   response: SurveyResponse
 ): { code: string; title: string; average: number }[] {

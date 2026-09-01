@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
+import clsx from 'clsx';
 import taxonomyData from '../content/taxonomy.json';
 import type { Taxonomy, SurveyResponse } from '../lib/types';
-import { TOOLS, PRACTICE } from '../lib/types';
+import { TOOLS, PRACTICE, normalizeTelegram } from '../lib/types';
 import { lookupResponse, submitResponse, ApiError } from '../lib/api';
+import { useUiChrome } from '../lib/UiChrome';
 import {
   ProgressBar,
   Notice,
@@ -17,6 +19,11 @@ import {
 
 const taxonomy = taxonomyData as unknown as Taxonomy;
 
+// Адрес сайта анкетирования — используется для QR-кода и текстовой ссылки
+// на странице авторизации, чтобы студенты могли быстро открыть анкету со
+// своего телефона, отсканировав код с проекционного экрана.
+const SURVEY_URL = 'http://z99392ok.beget.tech/';
+
 type Step = 'lookup' | 'auth' | 'blocks' | 'tools' | 'extra' | 'review' | 'done';
 
 const MOTIVATION_LABELS = [
@@ -28,7 +35,7 @@ const MOTIVATION_LABELS = [
 ];
 
 interface FormState {
-  ticket: string;
+  telegram: string;
   fio: string;
   direction: string;
   profile: string;
@@ -51,7 +58,7 @@ interface FormState {
 
 function emptyForm(): FormState {
   return {
-    ticket: '',
+    telegram: '',
     fio: '',
     direction: '',
     profile: '',
@@ -77,11 +84,20 @@ const ALL_ITEM_IDS = taxonomy.blocks.flatMap((b) => b.items.map((i) => i.id));
 
 export default function SurveyPage() {
   const [step, setStep] = useState<Step>('lookup');
-  const [lookupTicket, setLookupTicket] = useState('');
+  const [lookupTelegram, setLookupTelegram] = useState('');
   const [lookupFio, setLookupFio] = useState('');
   const [lookupError, setLookupError] = useState<string | null>(null);
   const [lookupLoading, setLookupLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const { setCompact } = useUiChrome();
+
+  // Компактный режим (без подвала, с уменьшенной шапкой) только на странице
+  // авторизации — чтобы весь экран, включая QR-код, помещался без прокрутки
+  // при проекции 1024x768.
+  useEffect(() => {
+    setCompact(step === 'lookup');
+    return () => setCompact(false);
+  }, [step, setCompact]);
 
   const [form, setForm] = useState<FormState>(emptyForm());
   const [blockIndex, setBlockIndex] = useState(0);
@@ -95,17 +111,18 @@ export default function SurveyPage() {
 
   async function handleLookupSubmit() {
     setLookupError(null);
-    if (!lookupTicket.trim() || !lookupFio.trim()) {
-      setLookupError('Укажите номер экзаменационного билета и ФИО.');
+    const cleanTelegram = normalizeTelegram(lookupTelegram);
+    if (!lookupFio.trim() || !cleanTelegram) {
+      setLookupError('Укажите ФИО и имя пользователя в Телеграм.');
       return;
     }
     setLookupLoading(true);
     try {
-      const res = await lookupResponse(lookupTicket.trim(), lookupFio.trim());
+      const res = await lookupResponse(cleanTelegram, lookupFio.trim());
       if (res.found && res.data) {
         const d = res.data;
         setForm({
-          ticket: d.ticket,
+          telegram: d.telegram,
           fio: d.fio,
           direction: d.direction || '',
           profile: d.profile || '',
@@ -127,7 +144,7 @@ export default function SurveyPage() {
         });
         setIsEditing(true);
       } else {
-        setForm({ ...emptyForm(), ticket: lookupTicket.trim(), fio: lookupFio.trim() });
+        setForm({ ...emptyForm(), telegram: cleanTelegram, fio: lookupFio.trim() });
         setIsEditing(false);
       }
       setStep('auth');
@@ -144,7 +161,7 @@ export default function SurveyPage() {
 
   function validateAuthStep(): string[] {
     const errs: string[] = [];
-    if (!form.ticket.trim()) errs.push('Не указан номер экзаменационного билета.');
+    if (!form.telegram.trim()) errs.push('Не указано имя пользователя в Телеграм.');
     if (!form.fio.trim()) errs.push('Не указано ФИО.');
     if (!form.direction.trim()) errs.push('Не указано направление подготовки.');
     if (!form.institute.trim()) errs.push('Не указан институт/факультет.');
@@ -204,7 +221,7 @@ export default function SurveyPage() {
     setSubmitLoading(true);
     try {
       const payload: Omit<SurveyResponse, 'slug' | 'submittedAt' | 'updatedAt' | 'version'> = {
-        ticket: form.ticket.trim(),
+        telegram: normalizeTelegram(form.telegram),
         fio: form.fio.trim(),
         direction: form.direction.trim(),
         profile: form.profile.trim(),
@@ -243,7 +260,7 @@ export default function SurveyPage() {
   }, [step, blockIndex, totalSteps]);
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
+    <div className={clsx('max-w-3xl mx-auto px-4 sm:px-6', step === 'lookup' ? 'py-3' : 'py-8')}>
       {step !== 'lookup' && step !== 'done' && (
         <div className="mb-6">
           <ProgressBar value={progress} label="Прогресс заполнения анкеты" />
@@ -251,20 +268,13 @@ export default function SurveyPage() {
       )}
 
       {step === 'lookup' && (
-        <Card>
-          <h1 className="font-display text-2xl text-navy-dark mb-2">Анкетирование поступающих</h1>
-          <p className="text-sm text-muted mb-6">
-            Перед началом укажите номер экзаменационного билета и фамилию, имя, отчество. Если анкета
-            по этому билету уже была отправлена, вы сможете отредактировать ранее введённые ответы.
+        <Card className="p-4 sm:p-5">
+          <h1 className="font-display text-xl sm:text-2xl text-navy-dark mb-1.5">Анкетирование магистрантов</h1>
+          <p className="text-sm text-muted mb-4">
+            Укажите фамилию, имя, отчество и имя пользователя в Telegram. Если анкета от вас уже
+            принята, вы сможете отредактировать ранее введённые ответы.
           </p>
-          <div className="grid gap-4 mb-4">
-            <TextField
-              label="Номер экзаменационного билета"
-              value={lookupTicket}
-              onChange={setLookupTicket}
-              placeholder="Например, 17"
-              required
-            />
+          <div className="grid gap-3 mb-3">
             <TextField
               label="ФИО"
               value={lookupFio}
@@ -272,15 +282,39 @@ export default function SurveyPage() {
               placeholder="Иванов Иван Иванович"
               required
             />
+            <TextField
+              label="Имя пользователя в Телеграм"
+              value={lookupTelegram}
+              onChange={setLookupTelegram}
+              placeholder="nick_name или @nick_name"
+              hint="Можно вводить с @ или без — знак будет убран автоматически"
+              required
+            />
           </div>
           {lookupError && (
-            <div className="mb-4">
+            <div className="mb-3">
               <Notice kind="error">{lookupError}</Notice>
             </div>
           )}
           <PrimaryButton onClick={handleLookupSubmit} disabled={lookupLoading}>
             {lookupLoading ? 'Проверка…' : 'Продолжить'}
           </PrimaryButton>
+
+          <div className="mt-5 pt-4 border-t border-border-light flex items-center gap-4">
+            <img
+              src="/qr/entry-qr.png"
+              alt="QR-код для перехода к анкете"
+              className="w-28 h-28 sm:w-32 sm:h-32 shrink-0 rounded-md border border-border-light bg-white p-1"
+              width={128}
+              height={128}
+            />
+            <div className="min-w-0">
+              <p className="text-sm text-muted mb-1">Откройте анкету со своего телефона — отсканируйте QR-код или перейдите по ссылке:</p>
+              <p className="font-display text-lg sm:text-xl text-navy-dark font-semibold break-all leading-snug">
+                {SURVEY_URL}
+              </p>
+            </div>
+          </div>
         </Card>
       )}
 
@@ -289,20 +323,21 @@ export default function SurveyPage() {
           {isEditing && (
             <div className="mb-4">
               <Notice kind="info">
-                По этому билету найдена ранее отправленная анкета. Вы можете отредактировать
+                По этому имени пользователя найдена ранее отправленная анкета. Вы можете отредактировать
                 ответы — при сохранении будет обновлена та же анкета.
               </Notice>
             </div>
           )}
-          <h2 className="font-display text-xl text-navy-dark mb-4">Сведения об абитуриенте</h2>
+          <h2 className="font-display text-xl text-navy-dark mb-4">Сведения о магистранте</h2>
           <div className="grid gap-4">
+            <TextField label="ФИО" value={form.fio} onChange={(v) => setForm({ ...form, fio: v })} required />
             <TextField
-              label="Номер экзаменационного билета"
-              value={form.ticket}
-              onChange={(v) => setForm({ ...form, ticket: v })}
+              label="Имя пользователя в Телеграм"
+              value={form.telegram}
+              onChange={(v) => setForm({ ...form, telegram: v })}
+              hint="Можно вводить с @ или без — знак будет убран автоматически"
               required
             />
-            <TextField label="ФИО" value={form.fio} onChange={(v) => setForm({ ...form, fio: v })} required />
             <TextField
               label="Направление подготовки"
               value={form.direction}
@@ -521,7 +556,7 @@ export default function SurveyPage() {
         <Card>
           <h2 className="font-display text-xl text-navy-dark mb-4">Проверка данных перед отправкой</h2>
           <dl className="grid sm:grid-cols-2 gap-3 text-sm mb-6">
-            <ReviewItem label="Билет" value={form.ticket} />
+            <ReviewItem label="Telegram" value={form.telegram} />
             <ReviewItem label="ФИО" value={form.fio} />
             <ReviewItem label="Направление" value={form.direction} />
             <ReviewItem label="Профиль" value={form.profile || '—'} />
@@ -557,7 +592,7 @@ export default function SurveyPage() {
             {isEditing ? 'Изменения сохранены' : 'Анкета отправлена'}
           </h2>
           <p className="text-sm text-muted mb-6">
-            Спасибо за участие! Ваши ответы по билету «{form.ticket}» успешно зафиксированы.
+            Спасибо за участие! Ваши ответы от имени пользователя «{form.telegram}» успешно зафиксированы.
           </p>
           <SecondaryButton onClick={() => window.location.reload()}>Заполнить другую анкету</SecondaryButton>
         </Card>

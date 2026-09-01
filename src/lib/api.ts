@@ -1,7 +1,6 @@
-// Клиент к Cloudflare Worker API. Базовый URL задаётся через переменную окружения
-// VITE_API_BASE (см. .env.production). Локально при отсутствии переменной запросы уйдут
-// на относительный /api и будут падать — для локальной разработки поднимите Worker
-// (см. worker/README.md, `wrangler dev`) и укажите его адрес в .env.local.
+// Клиент к PHP-бэкенду на Beget (public_html/api/*.php). Бэкенд развёрнут на том же
+// домене, что и фронтенд, поэтому VITE_API_BASE пустой и запросы идут по относительным
+// путям /api/... (см. .env.production).
 import type { AdminUser, SurveyResponse } from './types';
 
 const API_BASE = (import.meta as any).env?.VITE_API_BASE || '';
@@ -39,12 +38,12 @@ export { ApiError };
 // ---- Респондент ----
 
 export async function lookupResponse(
-  ticket: string,
+  telegram: string,
   fio: string
 ): Promise<{ found: boolean; data?: SurveyResponse }> {
   return request('/api/lookup', {
     method: 'POST',
-    body: JSON.stringify({ ticket, fio }),
+    body: JSON.stringify({ telegram, fio }),
   });
 }
 

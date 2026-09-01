@@ -24,7 +24,7 @@ import { fetchAllResponses, ApiError } from '../lib/api';
 import {
   computeBlockStats,
   computeRecommendedTopics,
-  computeTicketBlockProfile,
+  computeResponseBlockProfile,
   overallAverage,
   toolsUsageStats,
   practiceUsageStats,
@@ -49,14 +49,14 @@ export default function AdminReportPage() {
   const [responses, setResponses] = useState<SurveyResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedTicket, setSelectedTicket] = useState<string>('');
+  const [selectedTelegram, setSelectedTelegram] = useState<string>('');
 
   useEffect(() => {
     (async () => {
       try {
         const data = await fetchAllResponses();
         setResponses(data);
-        if (data.length > 0) setSelectedTicket(data[0].ticket);
+        if (data.length > 0) setSelectedTelegram(data[0].telegram);
       } catch (e) {
         setError(e instanceof ApiError ? e.message : 'Не удалось загрузить данные анкет.');
       } finally {
@@ -72,16 +72,16 @@ export default function AdminReportPage() {
   const practiceStats = useMemo(() => practiceUsageStats(responses, PRACTICE.map((p) => p.id)), [responses]);
   const motivationDist = useMemo(() => motivationDistribution(responses), [responses]);
 
-  const selectedResponse = responses.find((r) => r.ticket === selectedTicket) || null;
-  const ticketProfile = useMemo(
-    () => (selectedResponse ? computeTicketBlockProfile(taxonomy, selectedResponse) : []),
+  const selectedResponse = responses.find((r) => r.telegram === selectedTelegram) || null;
+  const responseProfile = useMemo(
+    () => (selectedResponse ? computeResponseBlockProfile(taxonomy, selectedResponse) : []),
     [selectedResponse]
   );
 
   const summaryText = useMemo(() => buildGroupSummary(responses, blockStats, avgAll), [responses, blockStats, avgAll]);
-  const ticketSummary = useMemo(
-    () => (selectedResponse ? buildTicketSummary(selectedResponse, ticketProfile) : ''),
-    [selectedResponse, ticketProfile]
+  const responseSummary = useMemo(
+    () => (selectedResponse ? buildResponseSummary(selectedResponse, responseProfile) : ''),
+    [selectedResponse, responseProfile]
   );
 
   const motivationPieData = [1, 2, 3, 4, 5].map((v, i) => ({
@@ -227,20 +227,20 @@ export default function AdminReportPage() {
             </div>
           </Card>
 
-          {/* Профиль компетенций по билету */}
+          {/* Профиль компетенций по участнику */}
           <Card>
-            <h2 className="font-display text-lg text-navy-dark mb-1">Профиль компетенций по билету</h2>
-            <p className="text-sm text-muted mb-4">Радар-диаграмма среднего балла по блокам A–I для выбранного билета.</p>
+            <h2 className="font-display text-lg text-navy-dark mb-1">Профиль компетенций по участнику</h2>
+            <p className="text-sm text-muted mb-4">Радар-диаграмма среднего балла по блокам A–I для выбранного участника.</p>
             <label className="block mb-4 max-w-xs">
-              <span className="block text-sm font-medium text-ink mb-1">Выберите билет</span>
+              <span className="block text-sm font-medium text-ink mb-1">Выберите участника</span>
               <select
-                value={selectedTicket}
-                onChange={(e) => setSelectedTicket(e.target.value)}
+                value={selectedTelegram}
+                onChange={(e) => setSelectedTelegram(e.target.value)}
                 className="w-full rounded-lg border border-border px-3 py-2.5 text-sm bg-white"
               >
                 {responses.map((r) => (
-                  <option key={r.ticket} value={r.ticket}>
-                    {r.ticket} — {r.fio}
+                  <option key={r.telegram} value={r.telegram}>
+                    {r.telegram} — {r.fio}
                   </option>
                 ))}
               </select>
@@ -249,16 +249,16 @@ export default function AdminReportPage() {
             {selectedResponse && (
               <div className="grid md:grid-cols-2 gap-6 items-start">
                 <ResponsiveContainer width="100%" height={320}>
-                  <RadarChart data={ticketProfile}>
+                  <RadarChart data={responseProfile}>
                     <PolarGrid />
                     <PolarAngleAxis dataKey="code" tick={{ fontSize: 12 }} />
                     <PolarRadiusAxis domain={[0, 5]} tick={{ fontSize: 10 }} />
-                    <Radar name={selectedResponse.ticket} dataKey="average" stroke="#12305C" fill="#12305C" fillOpacity={0.35} />
+                    <Radar name={selectedResponse.telegram} dataKey="average" stroke="#12305C" fill="#12305C" fillOpacity={0.35} />
                     <Tooltip formatter={((v: number) => v.toFixed(2)) as unknown as (value: unknown) => string} />
                   </RadarChart>
                 </ResponsiveContainer>
                 <div>
-                  <p className="text-sm text-ink whitespace-pre-line">{ticketSummary}</p>
+                  <p className="text-sm text-ink whitespace-pre-line">{responseSummary}</p>
                 </div>
               </div>
             )}
@@ -310,7 +310,7 @@ function buildGroupSummary(
   ].join('\n\n');
 }
 
-function buildTicketSummary(
+function buildResponseSummary(
   response: SurveyResponse,
   profile: { code: string; title: string; average: number }[]
 ): string {
@@ -323,7 +323,7 @@ function buildTicketSummary(
     : 'Уровень мотивации не указан.';
 
   return [
-    `Билет ${response.ticket} (${response.fio}).`,
+    `Telegram: ${response.telegram} (${response.fio}).`,
     `Средний балл самооценки по всем блокам: ${avg.toFixed(2)} из 5.`,
     `Наиболее сильная область: «${strongest.title}» (блок ${strongest.code}, ${strongest.average.toFixed(2)}).`,
     `Наиболее слабая область: «${weakest.title}» (блок ${weakest.code}, ${weakest.average.toFixed(2)}).`,

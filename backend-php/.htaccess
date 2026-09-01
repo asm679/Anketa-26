@@ -1,0 +1,25 @@
+# Анкетирование магистрантов — маршрутизация для PHP API и SPA-фронтенда (Beget).
+
+RewriteEngine On
+RewriteBase /
+
+# Прокидываем заголовок Authorization, если сервер его не передаёт по умолчанию.
+RewriteCond %{HTTP:Authorization} ^(.*)
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%1]
+
+# ---- API-маршруты ----
+RewriteRule ^api/lookup$ api/lookup.php [L,QSA]
+RewriteRule ^api/submit$ api/submit.php [L,QSA]
+RewriteRule ^api/admin/login$ api/admin-login.php [L,QSA]
+RewriteRule ^api/admin/responses$ api/admin-responses.php [L,QSA]
+RewriteRule ^api/admin/users$ api/admin-users.php [L,QSA]
+RewriteRule ^api/admin/users/([^/]+)$ api/admin-user.php?id=$1 [L,QSA]
+
+# ---- SPA fallback: всё остальное, что не файл/каталог и не /api/..., отдаём index.html ----
+RewriteCond %{REQUEST_URI} !^/api/
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [L]
+
+# Отключаем листинг каталогов
+Options -Indexes

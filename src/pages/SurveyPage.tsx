@@ -24,7 +24,7 @@ const taxonomy = taxonomyData as unknown as Taxonomy;
 // своего телефона, отсканировав код с проекционного экрана.
 const SURVEY_URL = 'http://z99392ok.beget.tech/';
 
-type Step = 'lookup' | 'auth' | 'blocks' | 'tools' | 'extra' | 'review' | 'done';
+type Step = 'lookup' | 'auth' | 'blocks' | 'tools' | 'desired' | 'extra' | 'review' | 'done';
 
 const MOTIVATION_LABELS = [
   '1 — совсем не мотивирован(а)',
@@ -52,6 +52,8 @@ interface FormState {
     programmingLanguages: string;
     studyPlace: string;
   };
+  desiredBlocks: string[];
+  desiredBlocksOther: string;
   motivation: number;
   expectations: string;
 }
@@ -75,6 +77,8 @@ function emptyForm(): FormState {
       programmingLanguages: '',
       studyPlace: '',
     },
+    desiredBlocks: [],
+    desiredBlocksOther: '',
     motivation: 0,
     expectations: '',
   };
@@ -139,6 +143,8 @@ export default function SurveyPage() {
             programmingLanguages: d.background?.programmingLanguages || '',
             studyPlace: d.background?.studyPlace || '',
           },
+          desiredBlocks: d.desiredBlocks || [],
+          desiredBlocksOther: d.desiredBlocksOther || '',
           motivation: d.motivation || 0,
           expectations: d.expectations || '',
         });
@@ -232,6 +238,8 @@ export default function SurveyPage() {
         tools: form.tools,
         practice: form.practice,
         background: form.background,
+        desiredBlocks: form.desiredBlocks,
+        desiredBlocksOther: form.desiredBlocksOther.trim() || undefined,
         motivation: form.motivation,
         expectations: form.expectations.trim() || undefined,
       };
@@ -248,13 +256,14 @@ export default function SurveyPage() {
     }
   }
 
-  const totalSteps = 3 + taxonomy.blocks.length; // auth + blocks(N) + tools + extra (review не считаем)
+  const totalSteps = 4 + taxonomy.blocks.length; // auth + blocks(N) + tools + desired + extra (review не считаем)
   const progress = useMemo(() => {
     if (step === 'lookup') return 0;
     if (step === 'auth') return (1 / totalSteps) * 100;
     if (step === 'blocks') return ((2 + blockIndex) / totalSteps) * 100;
     if (step === 'tools') return ((2 + taxonomy.blocks.length) / totalSteps) * 100;
-    if (step === 'extra') return ((3 + taxonomy.blocks.length) / totalSteps) * 100;
+    if (step === 'desired') return ((3 + taxonomy.blocks.length) / totalSteps) * 100;
+    if (step === 'extra') return ((4 + taxonomy.blocks.length) / totalSteps) * 100;
     if (step === 'review') return 96;
     return 100;
   }, [step, blockIndex, totalSteps]);
@@ -464,6 +473,55 @@ export default function SurveyPage() {
             >
               Назад
             </SecondaryButton>
+            <PrimaryButton onClick={() => setStep('desired')}>Далее</PrimaryButton>
+          </div>
+        </Card>
+      )}
+
+      {step === 'desired' && (
+        <Card>
+          <h2 className="font-display text-xl text-navy-dark mb-2">Желаемые блоки для обучения</h2>
+          <p className="text-sm text-muted mb-5">
+            Отметьте блоки программы, изучению которых вы хотели бы уделить больше внимания в ходе
+            курса. Это поможет скорректировать содержание занятий под интересы группы. Можно отметить
+            любое количество блоков — это не влияет на допуск к обучению.
+          </p>
+
+          <div className="grid gap-2 mb-5">
+            {taxonomy.blocks.map((b) => (
+              <label
+                key={b.code}
+                className="flex items-start gap-3 text-sm rounded-lg border border-border-light px-3 py-2.5 hover:bg-surface-alt cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  checked={form.desiredBlocks.includes(b.code)}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      desiredBlocks: e.target.checked
+                        ? [...form.desiredBlocks, b.code]
+                        : form.desiredBlocks.filter((c) => c !== b.code),
+                    })
+                  }
+                  className="mt-0.5 h-4 w-4 shrink-0"
+                />
+                <span>
+                  <span className="font-medium text-ink">Блок {b.code}.</span> {b.title}
+                </span>
+              </label>
+            ))}
+          </div>
+
+          <TextArea
+            label="Другие темы, которые вы хотели бы изучить (опционально)"
+            value={form.desiredBlocksOther}
+            onChange={(v) => setForm({ ...form, desiredBlocksOther: v })}
+            placeholder="Например, конкретные инструменты, кейсы или направления, не вошедшие в список выше"
+          />
+
+          <div className="flex justify-between mt-6">
+            <SecondaryButton onClick={() => setStep('tools')}>Назад</SecondaryButton>
             <PrimaryButton onClick={() => setStep('extra')}>Далее</PrimaryButton>
           </div>
         </Card>
@@ -546,7 +604,7 @@ export default function SurveyPage() {
           )}
 
           <div className="flex justify-between mt-6">
-            <SecondaryButton onClick={() => setStep('tools')}>Назад</SecondaryButton>
+            <SecondaryButton onClick={() => setStep('desired')}>Назад</SecondaryButton>
             <PrimaryButton onClick={goNextFromExtra}>Далее — проверка и отправка</PrimaryButton>
           </div>
         </Card>
@@ -563,6 +621,10 @@ export default function SurveyPage() {
             <ReviewItem label="Институт" value={form.institute} />
             <ReviewItem label="Email" value={form.email || '—'} />
             <ReviewItem label="Отвечено вопросов" value={`${Object.keys(form.scores).length} из ${ALL_ITEM_IDS.length}`} />
+            <ReviewItem
+              label="Желаемые блоки"
+              value={form.desiredBlocks.length ? form.desiredBlocks.join(', ') : '—'}
+            />
             <ReviewItem label="Мотивация" value={form.motivation ? String(form.motivation) : '—'} />
           </dl>
 

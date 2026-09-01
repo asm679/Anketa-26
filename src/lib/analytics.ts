@@ -138,6 +138,17 @@ export function practiceUsageStats(
   });
 }
 
+export function desiredBlocksStats(
+  taxonomy: Taxonomy,
+  responses: SurveyResponse[]
+): { code: string; title: string; count: number; pct: number }[] {
+  const total = responses.length || 1;
+  return taxonomy.blocks.map((block) => {
+    const count = responses.filter((r) => (r.desiredBlocks || []).includes(block.code)).length;
+    return { code: block.code, title: block.title, count, pct: (count / total) * 100 };
+  });
+}
+
 export function motivationDistribution(responses: SurveyResponse[]): number[] {
   const dist = [0, 0, 0, 0, 0, 0]; // индекс 0 не используется, 1..5
   for (const r of responses) {

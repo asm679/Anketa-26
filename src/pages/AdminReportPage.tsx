@@ -29,6 +29,7 @@ import {
   toolsUsageStats,
   practiceUsageStats,
   motivationDistribution,
+  desiredBlocksStats,
 } from '../lib/analytics';
 import { exportResponsesCsv, exportResponsesJson, printPage } from '../lib/export';
 import { Card, Notice, SecondaryButton, PrimaryButton } from '../components/ui';
@@ -71,6 +72,7 @@ export default function AdminReportPage() {
   const toolsStats = useMemo(() => toolsUsageStats(responses, TOOLS.map((t) => t.id)), [responses]);
   const practiceStats = useMemo(() => practiceUsageStats(responses, PRACTICE.map((p) => p.id)), [responses]);
   const motivationDist = useMemo(() => motivationDistribution(responses), [responses]);
+  const desiredBlocks = useMemo(() => desiredBlocksStats(taxonomy, responses), [responses]);
 
   const selectedResponse = responses.find((r) => r.telegram === selectedTelegram) || null;
   const responseProfile = useMemo(
@@ -209,6 +211,25 @@ export default function AdminReportPage() {
                   </BarChart>
                 </ResponsiveContainer>
               </div>
+            </div>
+
+            <div className="mt-6">
+              <h3 className="text-sm font-medium text-ink mb-2">Желаемые блоки для углублённого обучения (% анкет)</h3>
+              <p className="text-xs text-muted mb-2">
+                Доля участников, отметивших блок как приоритетный для дополнительного изучения.
+              </p>
+              <ResponsiveContainer width="100%" height={Math.max(280, desiredBlocks.length * 38)}>
+                <BarChart data={desiredBlocks} layout="vertical" margin={{ left: 10, right: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                  <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11 }} />
+                  <YAxis type="category" dataKey="code" width={30} tick={{ fontSize: 12, fontWeight: 600 }} />
+                  <Tooltip
+                    formatter={((v: number) => `${v.toFixed(0)}%`) as unknown as (value: unknown) => string}
+                    labelFormatter={((code: unknown) => desiredBlocks.find((b) => b.code === code)?.title || String(code)) as unknown as (label: unknown) => string}
+                  />
+                  <Bar dataKey="pct" radius={[0, 4, 4, 0]} fill="#A12C7B" />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
 
             <div className="mt-6">

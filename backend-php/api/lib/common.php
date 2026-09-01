@@ -176,5 +176,8 @@ function api_validate_submission($body) {
     if (isset($body['motivation']) && (!is_int($body['motivation']) || $body['motivation'] < 1 || $body['motivation'] > 5)) {
         return 'Некорректное значение мотивации (допустимо 1-5)';
     }
+    if (isset($body['desiredBlocks']) && !is_array($body['desiredBlocks'])) {
+        return 'Некорректный формат желаемых блоков';
+    }
     return null;
 }

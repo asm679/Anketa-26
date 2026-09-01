@@ -38,6 +38,7 @@ export function exportResponsesCsv(responses: SurveyResponse[], scoreIds: string
     'institute',
     'email',
     'motivation',
+    'desiredBlocks',
     ...scoreIds,
   ];
   const lines = [headers.join(';')];
@@ -50,6 +51,7 @@ export function exportResponsesCsv(responses: SurveyResponse[], scoreIds: string
       r.institute,
       r.email || '',
       r.motivation,
+      (r.desiredBlocks || []).join(', '),
       ...scoreIds.map((id) => r.scores?.[id] ?? ''),
     ];
     lines.push(row.map(csvEscape).join(';'));

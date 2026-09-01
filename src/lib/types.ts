@@ -74,6 +74,8 @@ export interface SurveyResponse {
     programmingLanguages: string;
     studyPlace: string;
   };
+  desiredBlocks: string[];
+  desiredBlocksOther?: string;
   motivation: number;
   expectations?: string;
   submittedAt: string;

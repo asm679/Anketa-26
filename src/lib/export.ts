@@ -62,3 +62,20 @@ export function exportResponsesCsv(responses: SurveyResponse[], scoreIds: string
 export function printPage() {
   window.print();
 }
+
+// Экспорт анонимизированных агрегатов + готовый промпт — для вставки вручную в любой
+// внешний ИИ-чат (ChatGPT, Claude, Gemini и т.п.), если педагог не хочет вводить API-ключ в панели.
+export function exportAiAnalysisBundle(promptText: string, aggregateJson: unknown) {
+  const content = [
+    promptText,
+    '',
+    '---',
+    '',
+    '### Данные (JSON) — вставьте целиком после текста выше в чат с любым ИИ:',
+    '',
+    '```json',
+    JSON.stringify(aggregateJson, null, 2),
+    '```',
+  ].join('\n');
+  downloadFile(`anketa26-ai-export-${Date.now()}.md`, content, 'text/markdown;charset=utf-8');
+}

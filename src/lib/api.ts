@@ -136,3 +136,27 @@ export async function deleteUser(id: string): Promise<{ ok: true }> {
     headers: authHeaders(),
   });
 }
+
+// ---- Сохранение последнего ИИ-отчёта (тело ответа ИИ, метаданные; апи-ключ НИКОгда не отправляется на сервер) ----
+
+export interface AiReportRecord {
+  reportText: string;
+  provider: string;
+  model: string;
+  generatedAt: string;
+  totalResponses: number;
+}
+
+export async function fetchAiReport(): Promise<AiReportRecord | null> {
+  return request('/api/admin/ai-report', { headers: authHeaders() });
+}
+
+export async function saveAiReport(
+  payload: Omit<AiReportRecord, 'generatedAt'>
+): Promise<AiReportRecord> {
+  return request('/api/admin/ai-report', {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify(payload),
+  });
+}

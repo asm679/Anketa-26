@@ -8,6 +8,8 @@ import AdminLoginPage from './pages/AdminLoginPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import AdminUsersPage from './pages/AdminUsersPage';
 import AdminReportPage from './pages/AdminReportPage';
+import AdminAnalysisPage from './pages/AdminAnalysisPage';
+import AdminAiAnalysisPage from './pages/AdminAiAnalysisPage';
 
 function App() {
   return (
@@ -39,6 +41,22 @@ function App() {
               element={
                 <RequireAuth roles={['admin', 'viewer']}>
                   <AdminReportPage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/admin/analysis"
+              element={
+                <RequireAuth roles={['admin', 'viewer']}>
+                  <AdminAnalysisPage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/admin/ai"
+              element={
+                <RequireAuth roles={['admin', 'viewer']}>
+                  <AdminAiAnalysisPage />
                 </RequireAuth>
               }
             />

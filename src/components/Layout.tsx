@@ -39,6 +39,12 @@ export default function Layout({ children }: { children: ReactNode }) {
               <Link to="/admin/report" className="hover:text-gold-light transition-colors">
                 Отчёт
               </Link>
+              <Link to="/admin/analysis" className="hover:text-gold-light transition-colors">
+                Групповой анализ
+              </Link>
+              <Link to="/admin/ai" className="hover:text-gold-light transition-colors">
+                ИИ-анализ
+              </Link>
               {isAuthenticated && (
                 <span className="hidden sm:inline text-white/60 text-xs">
                   {username} ({role === 'admin' ? 'администратор' : 'наблюдатель'})

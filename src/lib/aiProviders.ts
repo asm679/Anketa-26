@@ -30,10 +30,14 @@ export const AI_PROVIDERS: AiProviderOption[] = [
     label: 'Google Gemini (прямой API)',
     hint: 'Ключ из Google AI Studio (aistudio.google.com/app/apikey). Вызов идёт напрямую к API Google, без посредников.',
     // gemini-2.0-flash отключён Google 01.06.2026, gemini-1.5-pro снят с публичного API ранее.
-    // Актуальный на 09.2026 флагман для сложного анализа — Gemini 3.1 Pro; 3.7 Flash — быстрая
-    // и заметно дешевле, почти не уступая Pro по качеству рассуждений.
-    defaultModel: 'gemini-3.1-pro-preview',
-    modelSuggestions: ['gemini-3.1-pro-preview', 'gemini-3.7-flash', 'gemini-3.1-flash-lite'],
+    // gemini-3.1-pro-preview — самый мощный (лучше для сложного синтеза), но на бесплатном
+    // тарифе Google AI Studio у него нулевая квота (нужен включённый биллинг) — с обычным
+    // бесплатным ключом запрос завершится ошибкой 429. gemini-3.6-flash отрабатывает на
+    // бесплатном тарифе без проблем и даёт качественный разбор, поэтому он выбран как
+    // безопасный дефолт; более новый 3.7 Flash иногда временно недоступен (503, высокая
+    // нагрузка на стороне Google) — оставлен как альтернатива.
+    defaultModel: 'gemini-3.6-flash',
+    modelSuggestions: ['gemini-3.6-flash', 'gemini-3.1-pro-preview', 'gemini-3.7-flash', 'gemini-3.1-flash-lite'],
   },
 ];
 

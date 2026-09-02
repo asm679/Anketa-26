@@ -90,6 +90,15 @@ function store_file_exists($relativePath) {
     return file_exists(store_path($relativePath));
 }
 
+// Удаляет файл, если он существует. Возвращает true при успешном удалении.
+function store_delete_file($relativePath) {
+    $full = store_path($relativePath);
+    if (!file_exists($full)) {
+        return false;
+    }
+    return @unlink($full);
+}
+
 // Список имён файлов в подкаталоге (без "." и "..").
 function store_list_dir($relativePath) {
     $full = store_path($relativePath);

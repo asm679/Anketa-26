@@ -7,6 +7,7 @@ import SurveyPage from './pages/SurveyPage';
 import AdminLoginPage from './pages/AdminLoginPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import AdminUsersPage from './pages/AdminUsersPage';
+import AdminResponsesPage from './pages/AdminResponsesPage';
 import AdminReportPage from './pages/AdminReportPage';
 import AdminAnalysisPage from './pages/AdminAnalysisPage';
 import AdminAiAnalysisPage from './pages/AdminAiAnalysisPage';
@@ -33,6 +34,14 @@ function App() {
               element={
                 <RequireAuth roles={['admin']}>
                   <AdminUsersPage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/admin/responses"
+              element={
+                <RequireAuth roles={['admin', 'viewer']}>
+                  <AdminResponsesPage />
                 </RequireAuth>
               }
             />

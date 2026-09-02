@@ -20,12 +20,13 @@ export interface Taxonomy {
   blocks: TaxonomyBlock[];
 }
 
-// T1..T17 — инструменты, P1..P11 — практический опыт
+// T1..T18 — инструменты, P1..P11 — практический опыт
 export const TOOLS: { id: string; label: string }[] = [
   { id: 'T1', label: 'ChatGPT / GPT (OpenAI)' },
   { id: 'T2', label: 'Claude (Anthropic)' },
   { id: 'T3', label: 'Gemini (Google)' },
   { id: 'T4', label: 'DeepSeek' },
+  { id: 'T18', label: 'Qwen (Alibaba)' },
   { id: 'T5', label: 'YandexGPT / Алиса' },
   { id: 'T6', label: 'GigaChat (Сбер)' },
   { id: 'T7', label: 'Perplexity' },

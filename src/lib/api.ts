@@ -103,6 +103,28 @@ export async function fetchAllResponses(): Promise<SurveyResponse[]> {
   return request('/api/admin/responses', { headers: authHeaders() });
 }
 
+// Импорт анкет из ранее экспортированного JSON (восстановление/перенос данных). Только admin.
+export async function importResponses(
+  responses: SurveyResponse[]
+): Promise<{ ok: true; imported: number; skipped: number }> {
+  return request('/api/admin/responses', {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ responses }),
+  });
+}
+
+// Удаление анкет: все (all: true) либо выбранные (slugs: [...]). Только admin.
+export async function deleteResponses(
+  opts: { all?: boolean; slugs?: string[] }
+): Promise<{ ok: true; deleted: number }> {
+  return request('/api/admin/responses', {
+    method: 'DELETE',
+    headers: authHeaders(),
+    body: JSON.stringify(opts),
+  });
+}
+
 export async function fetchUsers(): Promise<AdminUser[]> {
   return request('/api/admin/users', { headers: authHeaders() });
 }

@@ -31,6 +31,9 @@ export default function Layout({ children }: { children: ReactNode }) {
               <Link to="/admin/dashboard" className="hover:text-gold-light transition-colors">
                 Дашборд
               </Link>
+              <Link to="/admin/responses" className="hover:text-gold-light transition-colors">
+                Анкеты
+              </Link>
               {role === 'admin' && (
                 <Link to="/admin/users" className="hover:text-gold-light transition-colors">
                   Пользователи
